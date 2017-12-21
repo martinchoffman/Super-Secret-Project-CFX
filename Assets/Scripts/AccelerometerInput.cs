@@ -11,8 +11,12 @@ public class AccelerometerInput : MonoBehaviour {
 
     [SerializeField] private float deadZone;        // .05
     [SerializeField] private float speed;           // 200
+    [SerializeField] private float airFriction;
 
     [SerializeField] private bool active;
+    [SerializeField] private bool slide;
+
+    private float momentum = -1;
 
     void Start () {
         Screen.autorotateToPortrait = false;
@@ -23,8 +27,20 @@ public class AccelerometerInput : MonoBehaviour {
 
     void Update () {
         UpdateAxes();
-        if (Mathf.Abs(atf) > deadZone && active) {
+        if (active) {
             transform.Rotate(atr, atf);
+            momentum = -1;
+        } else if (!active && slide) {
+            if (momentum == -1) {
+                momentum = atf;
+            } else if (momentum < 0.001f) {
+                momentum = 0;
+            }
+
+            print(momentum);
+
+            momentum *= airFriction;
+            transform.Rotate(atr, momentum * Time.deltaTime);
         }
 	}
 
@@ -48,6 +64,15 @@ public class AccelerometerInput : MonoBehaviour {
                 break;
         }
 
+        if (Mathf.Abs(atf) > deadZone) {
+            if (atf > 0) {
+                atf -= deadZone;
+            } else if (atf < 0) {
+                atf += deadZone;
+            }
+        } else {
+            atf = 0;
+        }
         atf = -atf * Time.deltaTime * speed;
 
         switch (axisToRotate) {

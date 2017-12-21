@@ -23,10 +23,6 @@ public class EnemySpawn : MonoBehaviour {
         float angle = Random.Range(0f, 2f * Mathf.PI);
         Vector3 spawnPoint = new Vector3(Mathf.Cos(angle) * spawnHeight + transform.position.x, Mathf.Sin(angle) * spawnHeight + transform.position.y, transform.position.z);
 
-        print("Angle: " + angle);
-        print("Cos: " + Mathf.Cos(angle));
-        print("Sin: " + Mathf.Sin(angle));
-
         yield return new WaitForSeconds(delay);
 
         GameObject enemy = Instantiate(enemies[0]);        // Create a system for randomly spawning enemies based on their difficulty coefficient and the current difficulty multiplier
