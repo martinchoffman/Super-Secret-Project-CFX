@@ -17,6 +17,8 @@ public class AccelerometerInput : MonoBehaviour {
     [SerializeField] private bool slide;
 
     private float momentum = -1;
+    private float startMomentum = 0;
+    private float time = 0;
 
     void Start () {
         Screen.autorotateToPortrait = false;
@@ -28,19 +30,32 @@ public class AccelerometerInput : MonoBehaviour {
     void Update () {
         UpdateAxes();
         if (active) {
+            atf = -atf * Time.deltaTime * speed;
             transform.Rotate(atr, atf);
+
             momentum = -1;
+            startMomentum = 0;
+            time = 0;
         } else if (!active && slide) {
             if (momentum == -1) {
                 momentum = atf;
+                startMomentum = atf;
             } else if (momentum < 0.001f) {
                 momentum = 0;
             }
 
             print(momentum);
 
-            momentum *= airFriction;
-            transform.Rotate(atr, momentum * Time.deltaTime);
+            if (time < airFriction) {
+                momentum = Mathf.Lerp(0, -startMomentum, (airFriction - time) / airFriction);
+            }
+
+            transform.Rotate(atr, momentum * Time.deltaTime * speed);
+
+            time += Time.deltaTime;
+
+            print(momentum);
+            print(momentum * Time.deltaTime * speed);
         }
 	}
 
@@ -73,7 +88,6 @@ public class AccelerometerInput : MonoBehaviour {
         } else {
             atf = 0;
         }
-        atf = -atf * Time.deltaTime * speed;
 
         switch (axisToRotate) {
             case Axis.x:
